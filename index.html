@@ -82,7 +82,7 @@
     <script src="js/leaflet.js"></script>
     <script src="js/jenks.js"></script>
 
-    <script src="data/censustracts2010.js"></script>
+    <script src="data/chicago_CBSA_tracts.js"></script>
 
     <script>
       $(window).resize(function () {
@@ -103,7 +103,7 @@
 
       // using dummy data for now
       var jobs_numbers = [];
-      for (var i = 0; i < chicagoTracts['features'].length; i++) {
+      for (var i = 0; i < chicago_CBSA_tracts['features'].length; i++) {
         jobs_numbers[i] = i;
       }
 
@@ -122,7 +122,7 @@
 
       info.update = function (props) {
         this._div.innerHTML = '<h4>Average monthly wages</h4>' +  (props ?
-          '<strong>Census tract</strong>: ' + props.Name : 'Hover over a census tract');
+          '<strong>Census tract</strong>: ' + props.tract_fips : 'Hover over a census tract');
       };
 
       info.addTo(map);
@@ -139,7 +139,7 @@
 
       function style(feature) {
         return {
-          weight: 1,
+          weight: 0.5,
           opacity: 1,
           color: 'white',
           fillOpacity: 0.7,
@@ -183,7 +183,7 @@
         });
       }
 
-      geojson = L.geoJson(chicagoTracts, {
+      geojson = L.geoJson(chicago_CBSA_tracts, {
         style: style,
         onEachFeature: onEachFeature
       }).addTo(map);
