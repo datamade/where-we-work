@@ -151,8 +151,8 @@
         var layer = e.target;
 
         layer.setStyle({
-          weight: 3,
-          color: '#666',
+          weight: 2,
+          color: '#333',
           dashArray: '',
           fillOpacity: 0.7
         });
@@ -173,11 +173,24 @@
       }
 
       function showConnectedTracts(e) {
-        //map.fitBounds(e.target.getBounds());
-        var tract_demo = ["8505", "8429", "8427.06"];
-        for (var i = 0; i < tract_demo.length; i++) {
-          map._layers[leaflet_tracts[tract_demo[i]]].setStyle({fillColor: 'black'});
-        }
+
+        var tract_fips = e.target.feature.properties.tract_fips;
+        $.ajax({
+          url: ("http://ec2-54-212-141-93.us-west-2.compute.amazonaws.com/tract-origin-destination/" + tract_fips + "/?callback=?"),
+          type: 'GET',
+          success: function (resp) {
+              console.log(resp);
+          },
+          error: function(e) {
+              console.log('Error: '+e);
+          }  
+        });
+
+        // //map.fitBounds(e.target.getBounds());
+        // var tract_demo = ["8505", "8429", "8427.06"];
+        // for (var i = 0; i < tract_demo.length; i++) {
+        //   map._layers[leaflet_tracts[tract_demo[i]]].setStyle({fillColor: 'black'});
+        // }
       }
 
       function onEachFeature(feature, layer) {
