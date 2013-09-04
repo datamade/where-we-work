@@ -77,7 +77,7 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="js/jquery.js"></script>
+    <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/leaflet.js"></script>
     <script src="js/jenks.js"></script>
@@ -165,6 +165,7 @@
       }
 
       var geojson;
+      var leaflet_tracts = {};
 
       function resetHighlight(e) {
         geojson.resetStyle(e.target);
@@ -172,7 +173,11 @@
       }
 
       function showConnectedTracts(e) {
-        map.fitBounds(e.target.getBounds());
+        //map.fitBounds(e.target.getBounds());
+        var tract_demo = ["8505", "8429", "8427.06"];
+        for (var i = 0; i < tract_demo.length; i++) {
+          map._layers[leaflet_tracts[tract_demo[i]]].setStyle({fillColor: 'black'});
+        }
       }
 
       function onEachFeature(feature, layer) {
@@ -187,6 +192,10 @@
         style: style,
         onEachFeature: onEachFeature
       }).addTo(map);
+
+      geojson.eachLayer(function (layer) {
+        leaflet_tracts[layer.feature.properties.tract_fips] = layer._leaflet_id;
+      });
 
       map.attributionControl.addAttribution('LODES data &copy; <a href="http://census.gov/">US Census Bureau</a>');
 
