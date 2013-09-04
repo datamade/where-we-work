@@ -88,10 +88,10 @@
       $(window).resize(function () {
         var h = $(window).height(),
           offsetTop = 65; // Calculate the top offset
-      
+
         $('#map').css('height', (h - offsetTop));
       }).resize();
-      
+
       var map = L.map('map').setView([41.882726, -87.93045], 9);
 
       var cloudmade = L.tileLayer('http://{s}.tile.cloudmade.com/{key}/{styleId}/256/{z}/{x}/{y}.png', {
@@ -130,10 +130,10 @@
 
       // get color depending on population density value
       function getColor(d) {
-        return  d >= jenks_cutoffs[3] ? '#006D2C' : 
-                d >= jenks_cutoffs[2] ? '#31A354' : 
-                d >= jenks_cutoffs[1] ? '#74C476' : 
-                d >= jenks_cutoffs[0] ? '#BAE4B3' :  
+        return  d >= jenks_cutoffs[3] ? '#006D2C' :
+                d >= jenks_cutoffs[2] ? '#31A354' :
+                d >= jenks_cutoffs[1] ? '#74C476' :
+                d >= jenks_cutoffs[0] ? '#BAE4B3' :
                                         '#EDF8E9';
       }
 
