@@ -6,7 +6,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Chicago Breadwinners</title>
+    <title>Where We Work</title>
 
     <!-- Bootstrap core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -36,7 +36,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Chicago Breadwinners</a>
+          <a class="navbar-brand" href="#">Where We Work</a>
         </div>
         <!-- <div class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
@@ -129,7 +129,7 @@
 
 
       // get color depending on population density value
-      function getColor(d) {
+      function getColor(d, jenks_cutoffs) {
         return  d >= jenks_cutoffs[3] ? '#006D2C' :
                 d >= jenks_cutoffs[2] ? '#31A354' :
                 d >= jenks_cutoffs[1] ? '#74C476' :
@@ -143,7 +143,7 @@
           opacity: 1,
           color: 'white',
           fillOpacity: 0.7,
-          fillColor: getColor(feature.properties['2011']['total_jobs'])
+          fillColor: '#999' //getColor(feature.properties['2011']['total_jobs'], jenks_cutoffs)
         };
       }
 
@@ -184,11 +184,26 @@
             var traveling_to = resp['traveling-to'];
             var traveling_from = resp['traveling-from'];
 
+            var traveling_to_numbers = [];
+            $.each(traveling_to, function(index, value) {
+              $.each(value, function(k, v) {
+                traveling_to_numbers.push(v);
+              });
+            });
+
+            console.log(traveling_to_numbers);
+
+            var traveling_to_jenks_cutoffs = jenks(traveling_to_numbers, 4);
+            traveling_to_jenks_cutoffs[0] = 0; // ensure the bottom value is 0
+            traveling_to_jenks_cutoffs.pop(); // last item is the max value, so dont use it
+
+            console.log(traveling_to_jenks_cutoffs);
+
             $.each(traveling_to, function(index, value) {
               $.each(value, function(k, v) {
                 console.log(k);
                 if (leaflet_tracts[k] != undefined)
-                  map._layers[leaflet_tracts[k]].setStyle({fillColor: 'black'});
+                  map._layers[leaflet_tracts[k]].setStyle({fillColor: getColor(v, traveling_to_jenks_cutoffs)});
               });
             });
 
@@ -239,7 +254,7 @@
           to = grades[i + 1];
 
           labels.push(
-            '<i style="background:' + getColor(from + 0.01) + '"></i> ' +
+            '<i style="background:' + getColor(from + 0.01, jenks_cutoffs) + '"></i> ' +
             from + (to ? '&ndash;' + to : '+'));
         }
 
