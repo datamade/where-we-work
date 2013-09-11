@@ -52,20 +52,34 @@
 
       <div class="starter-template">
         <div class='row'>
-          <!-- <div class='col-md-4'>
+          <div class='col-md-4'>
             <div class='well'>
-              <h3>Monthly wages</h3>
-              <p>Average monthly wages per census block in Chicago.</p>
-              <h4>
-                Year
-                <small id='year_label'></small>
-              </h4>
-              <div id='slider'></div>
-              <strong class='pull-left' id='start_year'></strong>
-              <strong class='pull-right' id='end_year'></strong>
+              <h3>Where We Work</h3>
+              <p>Find out where people live and work in Chicago</p>
+              
+              <h4>Traveling to</h4>
+              <ol class='color-legend'>
+                <li id='legend-to-1'>Less</li>
+                <li id='legend-to-2'></li>
+                <li id='legend-to-3'></li>
+                <li id='legend-to-4'></li>
+                <li id='legend-to-5'>More</li>
+              </ol>
+
+              <h4>Traveling from</h4>
+              <ol class='color-legend'>
+                <li id='legend-from-1'>Less</li>
+                <li id='legend-from-2'></li>
+                <li id='legend-from-3'></li>
+                <li id='legend-from-4'></li>
+                <li id='legend-from-5'>More</li>
+              </ol>
+
+              <br />
+
             </div>
-          </div> -->
-          <div class='col-md-12'>
+          </div>
+          <div class='col-md-8'>
             <div id='map'></div>
           </div>
         </div>
@@ -199,7 +213,7 @@
 
         var tract_fips = e.target.feature.properties.tract_fips;
         $.ajax({
-          url: ("http://ec2-54-212-141-93.us-west-2.compute.amazonaws.com/tract-origin-destination/" + tract_fips + "/"),
+          url: ("http://ec2-54-212-141-93.us-west-2.compute.amazonaws.com/tract-origin-destination/" + tract_fips + "/2011/"),
           type: 'GET',
           dataType: 'json',
           success: function (resp) {
@@ -263,29 +277,29 @@
       map.attributionControl.addAttribution('LODES data &copy; <a href="http://census.gov/">US Census Bureau</a>');
 
 
-      var legend = L.control({position: 'bottomright'});
+      // var legend = L.control({position: 'bottomright'});
 
-      legend.onAdd = function (map) {
+      // legend.onAdd = function (map) {
 
-        var div = L.DomUtil.create('div', 'info legend'),
-          grades = jenks_cutoffs,
-          labels = [],
-          from, to;
+      //   var div = L.DomUtil.create('div', 'info legend'),
+      //     grades = jenks_cutoffs,
+      //     labels = [],
+      //     from, to;
 
-        for (var i = 0; i < grades.length; i++) {
-          from = grades[i];
-          to = grades[i + 1];
+      //   for (var i = 0; i < grades.length; i++) {
+      //     from = grades[i];
+      //     to = grades[i + 1];
 
-          labels.push(
-            '<i style="background:' + getColor(from + 0.01, jenks_cutoffs) + '"></i> ' +
-            from + (to ? '&ndash;' + to : '+'));
-        }
+      //     labels.push(
+      //       '<i style="background:' + getColor(from + 0.01, jenks_cutoffs) + '"></i> ' +
+      //       from + (to ? '&ndash;' + to : '+'));
+      //   }
 
-        div.innerHTML = labels.join('<br>');
-        return div;
-      };
+      //   div.innerHTML = labels.join('<br>');
+      //   return div;
+      // };
 
-      legend.addTo(map);
+      // legend.addTo(map);
     </script>
 
   </body>
