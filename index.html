@@ -121,8 +121,8 @@
       };
 
       info.update = function (props) {
-        this._div.innerHTML = '<h4>LODES data</h4>' +  (props ?
-          '<strong>Census tract</strong>: ' + props.tract_fips + "<br /><strong>Number of jobs</strong>: " + props['2011']['total_jobs']: 'Hover over a census tract');
+        this._div.innerHTML = (props ?
+          '<strong>Census tract</strong>: ' + props.tract_fips: 'Hover over a census tract');
       };
 
       info.addTo(map);
@@ -137,13 +137,29 @@
                                         '#EDF8E9';
       }
 
+      function getColorTravelingTo(d, jenks_cutoffs) {
+        return  d >= jenks_cutoffs[3] ? '#A50F15' :
+                d >= jenks_cutoffs[2] ? '#DE2D26' :
+                d >= jenks_cutoffs[1] ? '#FB6A4A' :
+                d >= jenks_cutoffs[0] ? '#FCAE91' :
+                                        '#FEE5D9';
+      }
+
+      function getColorTravelingFrom(d, jenks_cutoffs) {
+        return  d >= jenks_cutoffs[3] ? '#08519C' :
+                d >= jenks_cutoffs[2] ? '#3182BD' :
+                d >= jenks_cutoffs[1] ? '#6BAED6' :
+                d >= jenks_cutoffs[0] ? '#BDD7E7' :
+                                        '#EFF3FF';
+      }
+
       function style(feature) {
         return {
           weight: 0.5,
           opacity: 1,
           color: 'white',
           fillOpacity: 0.7,
-          fillColor: '#999' //getColor(feature.properties['2011']['total_jobs'], jenks_cutoffs)
+          fillColor: '#aaa' //getColor(feature.properties['2011']['total_jobs'], jenks_cutoffs)
         };
       }
 
@@ -168,11 +184,18 @@
       var leaflet_tracts = {};
 
       function resetHighlight(e) {
-        geojson.resetStyle(e.target);
+
+        e.target.setStyle({
+          weight: 0.5,
+          opacity: 1,
+          color: 'white',
+        });
+
+        //geojson.resetStyle(e.target);
         info.update();
       }
 
-      function showConnectedTracts(e) {
+      function getConnectedTracts(e) {
 
         var tract_fips = e.target.feature.properties.tract_fips;
         $.ajax({
@@ -181,38 +204,13 @@
           dataType: 'json',
           success: function (resp) {
 
-            var traveling_to = resp['traveling-to'];
-            var traveling_from = resp['traveling-from'];
-
-            var traveling_to_numbers = [];
-            $.each(traveling_to, function(index, value) {
-              $.each(value, function(k, v) {
-                traveling_to_numbers.push(v);
-              });
+            geojson.eachLayer(function (layer) {
+              geojson.resetStyle(layer);
             });
 
-            console.log(traveling_to_numbers);
+            displayOriginDestination(resp['traveling-to'], 'traveling-to');
+            displayOriginDestination(resp['traveling-from'], 'traveling-from');
 
-            var traveling_to_jenks_cutoffs = jenks(traveling_to_numbers, 4);
-            traveling_to_jenks_cutoffs[0] = 0; // ensure the bottom value is 0
-            traveling_to_jenks_cutoffs.pop(); // last item is the max value, so dont use it
-
-            console.log(traveling_to_jenks_cutoffs);
-
-            $.each(traveling_to, function(index, value) {
-              $.each(value, function(k, v) {
-                console.log(k);
-                if (leaflet_tracts[k] != undefined)
-                  map._layers[leaflet_tracts[k]].setStyle({fillColor: getColor(v, traveling_to_jenks_cutoffs)});
-              });
-            });
-
-            // var tract_demo = ["8505", "8429", "8427.06"];
-            // for (var i = 0; i < tract_demo.length; i++) {
-            //   map._layers[leaflet_tracts[tract_demo[i]]].setStyle({fillColor: 'black'});
-            // }
-
-            //   console.log(resp);
           },
           error: function(error) {
               console.log(error);
@@ -220,11 +218,36 @@
         });
       }
 
+      function displayOriginDestination(tracts, type) {
+        var jenks_numbers = [];
+        $.each(tracts, function(index, value) {
+          $.each(value, function(k, v) {
+            jenks_numbers.push(v);
+          });
+        });
+
+        var tract_jenks_cutoffs = jenks(jenks_numbers, 4);
+        tract_jenks_cutoffs[0] = 0; // ensure the bottom value is 0
+        tract_jenks_cutoffs.pop(); // last item is the max value, so dont use it
+
+        $.each(tracts, function(index, value) {
+          $.each(value, function(k, v) {
+            console.log(k);
+            if (leaflet_tracts[k] != undefined)
+              if (type == 'traveling-to')
+                map._layers[leaflet_tracts[k]].setStyle({fillColor: getColorTravelingTo(v, tract_jenks_cutoffs)});
+              else
+                map._layers[leaflet_tracts[k]].setStyle({fillColor: getColorTravelingFrom(v, tract_jenks_cutoffs)});
+          });
+        });
+
+      }
+
       function onEachFeature(feature, layer) {
         layer.on({
           mouseover: highlightFeature,
           mouseout: resetHighlight,
-          click: showConnectedTracts
+          click: getConnectedTracts
         });
       }
 
