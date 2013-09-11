@@ -117,11 +117,13 @@ var LeafletLib = {
 
     resetHighlight: function (e) {
 
-      e.target.setStyle({
-        weight: 0.5,
-        opacity: 1,
-        color: 'white',
-      });
+      if (e.target.feature.properties.tract_fips != LeafletLib.selectedTract) {
+         e.target.setStyle({
+          weight: 0.5,
+          opacity: 1,
+          color: 'white',
+        });
+      }
 
       LeafletLib.info.update();
     },
@@ -152,7 +154,7 @@ var LeafletLib = {
           });
 
           LeafletLib.displayOriginDestination(resp[LeafletLib.viewMode], LeafletLib.viewMode);
-          LeafletLib.map._layers[LeafletLib.leaflet_tracts[tract_fips]].setStyle({weight: 3, color: '#000', dashArray: ''});
+          LeafletLib.map._layers[LeafletLib.leaflet_tracts[tract_fips]].setStyle({weight: 2, color: '#333'});
         },
         error: function(error) {
             console.log(error);
