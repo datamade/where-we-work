@@ -11,6 +11,7 @@ var LeafletLib = {
     geojson: [ ],
     leaflet_tracts: {},
     info: L.control(),
+    selectedTract: "",
 
     initialize: function(element, features, centroid, zoom) {
 
@@ -20,7 +21,7 @@ var LeafletLib = {
           attribution: 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
           key: 'BC9A493B41014CAABB98F0471D759707',
           styleId: 22677
-      }).addTo(LeafletLib.map);
+        }).addTo(LeafletLib.map);
         LeafletLib.map.attributionControl.addAttribution('LODES data &copy; <a href="http://census.gov/">US Census Bureau</a>');
 
         LeafletLib.info.onAdd = function (map) {
@@ -44,6 +45,10 @@ var LeafletLib = {
         LeafletLib.geojson.eachLayer(function (layer) {
           LeafletLib.leaflet_tracts[layer.feature.properties.tract_fips] = layer._leaflet_id;
         });
+
+        LeafletLib.selectedTract = $.address.parameter('tract_fips');
+        if (LeafletLib.selectedTract != "") 
+          LeafletLib.getConnectedTracts(LeafletLib.selectedTract);
 
     },
 
@@ -107,13 +112,24 @@ var LeafletLib = {
         color: 'white',
       });
 
-      //geojson.resetStyle(e.target);
       LeafletLib.info.update();
     },
 
-    getConnectedTracts: function (e) {
-
+    tractSelected: function (e) {
       var tract_fips = e.target.feature.properties.tract_fips;
+      LeafletLib.selectedTract = tract_fips;
+      $.address.parameter('tract_fips',tract_fips);
+
+      LeafletLib.getConnectedTracts(tract_fips);
+    },
+
+    getConnectedTracts: function (tract_fips) {
+
+      $( "#selected-tract" ).fadeOut(function() {
+          $( "#selected-tract span" ).html(tract_fips);
+        });
+      $( "#selected-tract" ).fadeIn();
+
       $.ajax({
         url: ("http://ec2-54-212-141-93.us-west-2.compute.amazonaws.com/tract-origin-destination/" + tract_fips + "/2011/"),
         type: 'GET',
@@ -163,7 +179,7 @@ var LeafletLib = {
       layer.on({
         mouseover: LeafletLib.highlightFeature,
         mouseout: LeafletLib.resetHighlight,
-        click: LeafletLib.getConnectedTracts
+        click: LeafletLib.tractSelected
       });
     },
 

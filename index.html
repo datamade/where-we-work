@@ -90,6 +90,11 @@
               <br />
 
             </div>
+            <div class='well' id="selected-tract" style='display: none;'>
+              <p class='lead'>
+                <strong>Selected tract:</strong> <span></span>
+              </p>
+            </div>
           </div>
           <div class='col-md-8'>
             <div id='map'></div>
@@ -103,10 +108,11 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/leaflet.js"></script>
     <script src="js/jenks.js"></script>
+    <script src="js/jquery.address-1.5.min.js"></script>
     <script src="js/leaflet_lib.js"></script>
 
     <script src="data/chicago_CBSA_tracts.js"></script>
@@ -119,13 +125,11 @@
         $('#map').css('height', (h - offsetTop));
       }).resize();
 
-      LeafletLib.initialize(
-        $("#map")[0],
-        chicago_CBSA_tracts,
-        [41.882726, -87.93045],
-        9
-      );
+      LeafletLib.initialize($("#map")[0], chicago_CBSA_tracts, [41.882726, -87.93045], 9);
 
+      // $(':radio').click(function(){
+      //   MapsLib.doSearch();
+      // });
 
     </script>
 
