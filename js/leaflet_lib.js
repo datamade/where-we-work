@@ -49,17 +49,16 @@ var LeafletLib = {
 
         LeafletLib.selectedTract = $.address.parameter('tract_fips');
 
-        if ($.address.parameter('view_mode') != "") {
-          LeafletLib.viewMode = $.address.parameter('view_mode');
+        if ($.address.parameter('view_mode') == 'traveling-from') {
+          LeafletLib.viewMode = 'traveling-from';
 
-          if (LeafletLib.viewMode == 'traveling-from') {
-            $('#rbTravelingFrom').attr('checked', 'checked');
-            $('#traveling-to-legend').hide();
-            $('#traveling-from-legend').show();
-          }
+          $('#rbTravelingFrom').attr('checked', 'checked');
+          $('#traveling-to-legend').hide();
+          $('#traveling-from-legend').show();
+
         }
           
-        if (LeafletLib.selectedTract != "") 
+        if (LeafletLib.selectedTract != undefined) 
           LeafletLib.getConnectedTracts(LeafletLib.selectedTract);
     },
 
