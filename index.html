@@ -67,7 +67,7 @@
                 Traveling from
               </label>
               
-              <div class='traveling-to-legend'>
+              <div id='traveling-to-legend'>
                 <ol class='color-legend'>
                   <li id='legend-to-1'>Less</li>
                   <li id='legend-to-2'></li>
@@ -77,7 +77,7 @@
                 </ol>
               </div>
 
-              <div class='traveling-from-legend' style='display:none;'>
+              <div id='traveling-from-legend' style='display:none;'>
                 <ol class='color-legend'>
                   <li id='legend-from-1'>Less</li>
                   <li id='legend-from-2'></li>
@@ -127,9 +127,25 @@
 
       LeafletLib.initialize($("#map")[0], chicago_CBSA_tracts, [41.882726, -87.93045], 9);
 
-      // $(':radio').click(function(){
-      //   MapsLib.doSearch();
-      // });
+      $('#rbTravelingTo').click(function(){
+        LeafletLib.viewMode = 'traveling-to';
+        $('#traveling-to-legend').show();
+        $('#traveling-from-legend').hide();
+        $.address.parameter('view_mode', LeafletLib.viewMode);
+
+        if (LeafletLib.selectedTract != '')
+          LeafletLib.getConnectedTracts(LeafletLib.selectedTract);
+      });
+
+      $('#rbTravelingFrom').click(function(){
+        LeafletLib.viewMode = 'traveling-from';
+        $('#traveling-to-legend').hide();
+        $('#traveling-from-legend').show();
+        $.address.parameter('view_mode', LeafletLib.viewMode);
+
+        if (LeafletLib.selectedTract != '')
+          LeafletLib.getConnectedTracts(LeafletLib.selectedTract);
+      });
 
     </script>
 

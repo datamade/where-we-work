@@ -12,6 +12,7 @@ var LeafletLib = {
     leaflet_tracts: {},
     info: L.control(),
     selectedTract: "",
+    viewMode: 'traveling-to',
 
     initialize: function(element, features, centroid, zoom) {
 
@@ -47,9 +48,19 @@ var LeafletLib = {
         });
 
         LeafletLib.selectedTract = $.address.parameter('tract_fips');
+
+        if ($.address.parameter('view_mode') != "") {
+          LeafletLib.viewMode = $.address.parameter('view_mode');
+
+          if (LeafletLib.viewMode == 'traveling-from') {
+            $('#rbTravelingFrom').attr('checked', 'checked');
+            $('#traveling-to-legend').hide();
+            $('#traveling-from-legend').show();
+          }
+        }
+          
         if (LeafletLib.selectedTract != "") 
           LeafletLib.getConnectedTracts(LeafletLib.selectedTract);
-
     },
 
     // get color depending on population density value
@@ -140,9 +151,8 @@ var LeafletLib = {
             LeafletLib.geojson.resetStyle(layer);
           });
 
-          LeafletLib.displayOriginDestination(resp['traveling-to'], 'traveling-to');
-          LeafletLib.displayOriginDestination(resp['traveling-from'], 'traveling-from');
-
+          LeafletLib.displayOriginDestination(resp[LeafletLib.viewMode], LeafletLib.viewMode);
+          LeafletLib.map._layers[LeafletLib.leaflet_tracts[tract_fips]].setStyle({weight: 3, color: '#000', dashArray: ''});
         },
         error: function(error) {
             console.log(error);
