@@ -1,0 +1,1 @@
+select substring(h_geocode from 1 for 11) as home, sum(s000) as total_jobs from origin_destination where w_geocode like '17031841900%' and data_year = '2011' group by home order by total_jobs desc limit 100;
