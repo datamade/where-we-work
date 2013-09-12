@@ -142,6 +142,8 @@ var LeafletLib = {
         });
       $( "#selected-tract" ).fadeIn();
 
+      LeafletLib.map.setView(LeafletLib.map._layers[LeafletLib.leaflet_tracts[tract_fips]]._latlngs[0], 11);
+
       $.ajax({
         url: ("http://ec2-54-212-141-93.us-west-2.compute.amazonaws.com/tract-origin-destination/" + tract_fips + "/2011/"),
         type: 'GET',
