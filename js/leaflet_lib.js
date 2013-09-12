@@ -13,6 +13,7 @@ var LeafletLib = {
     info: L.control(),
     selectedTract: "",
     viewMode: 'traveling-to',
+    legend: L.control({position: 'bottomright'}),
 
     initialize: function(element, features, centroid, zoom) {
 
@@ -51,11 +52,7 @@ var LeafletLib = {
 
         if ($.address.parameter('view_mode') == 'traveling-from') {
           LeafletLib.viewMode = 'traveling-from';
-
           $('#rbTravelingFrom').attr('checked', 'checked');
-          $('#traveling-to-legend').hide();
-          $('#traveling-from-legend').show();
-
         }
           
         if (LeafletLib.selectedTract != undefined) 
@@ -138,11 +135,11 @@ var LeafletLib = {
     getConnectedTracts: function (tract_fips) {
 
       $( "#selected-tract" ).fadeOut(function() {
-          $( "#selected-tract span" ).html(tract_fips);
+          $( "#selected-tract-id" ).html(tract_fips);
         });
       $( "#selected-tract" ).fadeIn();
 
-      LeafletLib.map.setView(LeafletLib.map._layers[LeafletLib.leaflet_tracts[tract_fips]]._latlngs[0], 11);
+      LeafletLib.map.panTo(LeafletLib.map._layers[LeafletLib.leaflet_tracts[tract_fips]]._latlngs[0]);
 
       $.ajax({
         url: ("http://ec2-54-212-141-93.us-west-2.compute.amazonaws.com/tract-origin-destination/" + tract_fips + "/2011/"),
@@ -179,13 +176,45 @@ var LeafletLib = {
         $.each(value, function(k, v) {
           console.log(k);
           if (LeafletLib.leaflet_tracts[k] != undefined)
-            if (type == 'traveling-to')
+            if (type == 'traveling-to') {
               LeafletLib.map._layers[LeafletLib.leaflet_tracts[k]].setStyle({fillColor: LeafletLib.getColorTravelingTo(v, tract_jenks_cutoffs)});
-            else
+              LeafletLib.updateLegend(tract_jenks_cutoffs, LeafletLib.getColorTravelingTo, "Inbound workers");
+            }
+            else {
               LeafletLib.map._layers[LeafletLib.leaflet_tracts[k]].setStyle({fillColor: LeafletLib.getColorTravelingFrom(v, tract_jenks_cutoffs)});
+              LeafletLib.updateLegend(tract_jenks_cutoffs, LeafletLib.getColorTravelingFrom, "Outbound workers");
+            }
         });
       });
 
+    },
+
+    updateLegend: function(tract_jenks_cutoffs, color_function, legend_title) {
+
+      if (LeafletLib.legend.onAdd != undefined)
+        LeafletLib.map.removeControl(LeafletLib.legend);
+
+      LeafletLib.legend.onAdd = function (map) {
+
+          var div = L.DomUtil.create('div', 'info legend'),
+              grades = tract_jenks_cutoffs,
+              labels = [],
+              from, to;
+
+          for (var i = 0; i < grades.length; i++) {
+              from = grades[i];
+              to = grades[i + 1];
+
+              labels.push(
+                  '<i style="background:' + color_function((from + 0.01), tract_jenks_cutoffs) + '"></i> ' +
+                  from + (to ? '&ndash;' + to : '+'));
+          }
+
+          div.innerHTML = "<strong>"+ legend_title + "</strong><br>" + labels.join('<br>');
+          return div;
+      };
+
+      LeafletLib.legend.addTo(LeafletLib.map);
     },
 
     onEachFeature: function (feature, layer) {

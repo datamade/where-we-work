@@ -55,44 +55,22 @@
           <div class='col-md-4'>
             <div class='well'>
               <h3>Where We Work</h3>
-              <p>Find out where people live and work in Chicago</p>
+              <p>Find out where people lived and worked in Chicago-land in 2011</p>
 
               <label class='radio-inline'>
                 <input type='radio' id='rbTravelingTo' checked='checked' name='rbType'/>
-                Traveling to
+                Inbound workers
               </label>
 
               <label class='radio-inline'>
                 <input type='radio' id='rbTravelingFrom' name='rbType'/>
-                Traveling from
+                Outbound workers
               </label>
-              
-              <div id='traveling-to-legend'>
-                <ol class='color-legend'>
-                  <li id='legend-to-1'>Less</li>
-                  <li id='legend-to-2'></li>
-                  <li id='legend-to-3'></li>
-                  <li id='legend-to-4'></li>
-                  <li id='legend-to-5'>More</li>
-                </ol>
-              </div>
-
-              <div id='traveling-from-legend' style='display:none;'>
-                <ol class='color-legend'>
-                  <li id='legend-from-1'>Less</li>
-                  <li id='legend-from-2'></li>
-                  <li id='legend-from-3'></li>
-                  <li id='legend-from-4'></li>
-                  <li id='legend-from-5'>More</li>
-                </ol>
-              </div>
-
-              <br />
 
             </div>
             <div class='well' id="selected-tract" style='display: none;'>
               <p class='lead'>
-                <strong>Selected tract:</strong> <span></span>
+                <strong>Selected tract:</strong> <span id="selected-tract-id"></span>
               </p>
             </div>
           </div>
@@ -129,8 +107,6 @@
 
       $('#rbTravelingTo').click(function(){
         LeafletLib.viewMode = 'traveling-to';
-        $('#traveling-to-legend').show();
-        $('#traveling-from-legend').hide();
         $.address.parameter('view_mode', LeafletLib.viewMode);
 
         if (LeafletLib.selectedTract != '')
@@ -139,8 +115,6 @@
 
       $('#rbTravelingFrom').click(function(){
         LeafletLib.viewMode = 'traveling-from';
-        $('#traveling-to-legend').hide();
-        $('#traveling-from-legend').show();
         $.address.parameter('view_mode', LeafletLib.viewMode);
 
         if (LeafletLib.selectedTract != '')
