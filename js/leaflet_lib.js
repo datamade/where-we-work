@@ -154,12 +154,11 @@ var LeafletLib = {
       });
 
       var tract_jenks_cutoffs = jenks(jenks_numbers, 4);
-      tract_jenks_cutoffs[0] = 0; // ensure the bottom value is 0
-      tract_jenks_cutoffs.pop(); // last item is the max value, so dont use it
+      //console.log(tract_jenks_cutoffs);
 
       $.each(tracts, function(index, value) {
         $.each(value, function(k, v) {
-          console.log(k);
+          //console.log(k);
           if (LeafletLib.leaflet_tracts[k] != undefined) {
 
             var layer = LeafletLib.map._layers[LeafletLib.leaflet_tracts[k]];
@@ -195,9 +194,11 @@ var LeafletLib = {
               from = grades[i];
               to = grades[i + 1];
 
-              labels.push(
+              if (to) {
+                labels.push(
                   '<i style="background:' + color_function((from + 0.01), tract_jenks_cutoffs) + '"></i> ' +
-                  from + (to ? '&ndash;' + to : '+'));
+                  from + '&ndash;' + to);
+              }
           }
 
           div.innerHTML = "<strong>"+ legend_title + "</strong><br>" + labels.join('<br>');
