@@ -10,7 +10,6 @@ var LeafletLib = {
     markers: [ ],
     geojson: [ ],
     leaflet_tracts: {},
-    info: L.control(),
     selectedTract: "",
     viewMode: 'traveling-to',
     legend: L.control({position: 'bottomright'}),
@@ -26,19 +25,6 @@ var LeafletLib = {
         }).addTo(LeafletLib.map);
         LeafletLib.map.attributionControl.addAttribution('LODES data &copy; <a href="http://census.gov/">US Census Bureau</a>');
 
-        LeafletLib.info.onAdd = function (map) {
-          this._div = L.DomUtil.create('div', 'info');
-          this.update();
-          return this._div;
-        };
-
-        LeafletLib.info.update = function (props) {
-          this._div.innerHTML = (props ?
-            '<strong>Census tract</strong>: ' + props.tract_fips: 'Hover over a census tract');
-        };
-
-        LeafletLib.info.addTo(LeafletLib.map);
-
         LeafletLib.geojson = L.geoJson(features, {
           style: LeafletLib.style,
           onEachFeature: LeafletLib.onEachFeature
@@ -46,6 +32,7 @@ var LeafletLib = {
 
         LeafletLib.geojson.eachLayer(function (layer) {
           LeafletLib.leaflet_tracts[layer.feature.properties.tract_fips] = layer._leaflet_id;
+          layer.bindLabel('Tract: ' + layer.feature.properties.tract_fips);
         });
 
         LeafletLib.selectedTract = $.address.parameter('tract_fips');
@@ -107,8 +94,6 @@ var LeafletLib = {
       if (!L.Browser.ie && !L.Browser.opera) {
         layer.bringToFront();
       }
-
-      LeafletLib.info.update(layer.feature.properties);
     },
 
     resetHighlight: function (e) {
@@ -120,8 +105,6 @@ var LeafletLib = {
           color: 'white',
         });
       }
-
-      LeafletLib.info.update();
     },
 
     tractSelected: function (e) {
@@ -149,6 +132,8 @@ var LeafletLib = {
 
           LeafletLib.geojson.eachLayer(function (layer) {
             LeafletLib.geojson.resetStyle(layer);
+            layer.unbindLabel();
+            layer.bindLabel('Tract: ' + layer.feature.properties.tract_fips);
           });
 
           LeafletLib.displayOriginDestination(resp[LeafletLib.viewMode], LeafletLib.viewMode);
@@ -175,15 +160,20 @@ var LeafletLib = {
       $.each(tracts, function(index, value) {
         $.each(value, function(k, v) {
           console.log(k);
-          if (LeafletLib.leaflet_tracts[k] != undefined)
+          if (LeafletLib.leaflet_tracts[k] != undefined) {
+
+            var layer = LeafletLib.map._layers[LeafletLib.leaflet_tracts[k]];
             if (type == 'traveling-to') {
-              LeafletLib.map._layers[LeafletLib.leaflet_tracts[k]].setStyle({fillColor: LeafletLib.getColorTravelingTo(v, tract_jenks_cutoffs)});
+              layer.setStyle({fillColor: LeafletLib.getColorTravelingTo(v, tract_jenks_cutoffs)});
               LeafletLib.updateLegend(tract_jenks_cutoffs, LeafletLib.getColorTravelingTo, "Inbound workers");
-            }
+              layer.bindLabel('Tract: ' + layer.feature.properties.tract_fips + "<br />Inbound workers: " + v);
+            } 
             else {
               LeafletLib.map._layers[LeafletLib.leaflet_tracts[k]].setStyle({fillColor: LeafletLib.getColorTravelingFrom(v, tract_jenks_cutoffs)});
               LeafletLib.updateLegend(tract_jenks_cutoffs, LeafletLib.getColorTravelingFrom, "Outbound workers");
+              layer.bindLabel('Tract: ' + layer.feature.properties.tract_fips + "<br />Outbound workers: " + v);
             }
+          }
         });
       });
 
