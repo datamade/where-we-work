@@ -16,34 +16,34 @@ var LeafletLib = {
 
     initialize: function(element, features, centroid, zoom) {
 
-        LeafletLib.map = L.map(element).setView(new L.LatLng( centroid[0], centroid[1] ), zoom);
+      LeafletLib.map = L.map(element).setView(new L.LatLng( centroid[0], centroid[1] ), zoom);
 
-        LeafletLib.tiles =  L.tileLayer('http://{s}.tile.cloudmade.com/{key}/{styleId}/256/{z}/{x}/{y}.png', {
-          attribution: 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
-          key: 'BC9A493B41014CAABB98F0471D759707',
-          styleId: 22677
-        }).addTo(LeafletLib.map);
-        LeafletLib.map.attributionControl.addAttribution('LODES data &copy; <a href="http://census.gov/">US Census Bureau</a>');
+      LeafletLib.tiles =  L.tileLayer('http://{s}.tile.cloudmade.com/{key}/{styleId}/256/{z}/{x}/{y}.png', {
+        attribution: 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+        key: 'BC9A493B41014CAABB98F0471D759707',
+        styleId: 22677
+      }).addTo(LeafletLib.map);
+      LeafletLib.map.attributionControl.addAttribution('LODES data &copy; <a href="http://census.gov/">US Census Bureau</a>');
 
-        LeafletLib.geojson = L.geoJson(features, {
-          style: LeafletLib.style,
-          onEachFeature: LeafletLib.onEachFeature
-        }).addTo(LeafletLib.map);
+      LeafletLib.geojson = L.geoJson(features, {
+        style: LeafletLib.style,
+        onEachFeature: LeafletLib.onEachFeature
+      }).addTo(LeafletLib.map);
 
-        LeafletLib.geojson.eachLayer(function (layer) {
-          LeafletLib.leaflet_tracts[layer.feature.properties.tract_fips] = layer._leaflet_id;
-          layer.bindLabel('Tract: ' + layer.feature.properties.tract_fips);
-        });
+      LeafletLib.geojson.eachLayer(function (layer) {
+        LeafletLib.leaflet_tracts[layer.feature.properties.tract_fips] = layer._leaflet_id;
+        layer.bindLabel('Tract: ' + layer.feature.properties.tract_fips);
+      });
 
-        LeafletLib.selectedTract = $.address.parameter('tract_fips');
+      LeafletLib.selectedTract = $.address.parameter('tract_fips');
 
-        if ($.address.parameter('view_mode') == 'traveling-from') {
-          LeafletLib.viewMode = 'traveling-from';
-          $('#rbTravelingFrom').attr('checked', 'checked');
-        }
-          
-        if (LeafletLib.selectedTract != undefined) 
-          LeafletLib.getConnectedTracts(LeafletLib.selectedTract);
+      if ($.address.parameter('view_mode') == 'traveling-from') {
+        LeafletLib.viewMode = 'traveling-from';
+        $('#rbTravelingFrom').attr('checked', 'checked');
+      }
+        
+      if (LeafletLib.selectedTract != undefined) 
+        LeafletLib.getConnectedTracts(LeafletLib.selectedTract);
     },
 
     // get color depending on population density value
@@ -140,41 +140,51 @@ var LeafletLib = {
           LeafletLib.map._layers[LeafletLib.leaflet_tracts[tract_fips]].setStyle({weight: 2, color: '#333'});
         },
         error: function(error) {
-            console.log(error);
+          console.log(error);
         }  
       });
     },
 
     displayOriginDestination: function (tracts, type) {
       var jenks_numbers = [];
+      var top_tracts = "";
       $.each(tracts, function(index, value) {
         $.each(value, function(k, v) {
           jenks_numbers.push(v);
+
+          if (index < 5) top_tracts += "<tr><td><a onclick='LeafletLib.getConnectedTracts(" + k + "); return false;' href='#'>" + k + "</a></td><td>" + v + "</td></tr>";
         });
       });
+
+      $('#connect-tracts').html(tracts.length);
+      $('#top-tracts tbody').html(top_tracts);
 
       var tract_jenks_cutoffs = jenks(jenks_numbers, 4);
       //console.log(tract_jenks_cutoffs);
 
-      $.each(tracts, function(index, value) {
-        $.each(value, function(k, v) {
-          //console.log(k);
-          if (LeafletLib.leaflet_tracts[k] != undefined) {
+      if (tract_jenks_cutoffs == null)
+        LeafletLib.updateLegend([], null, "No workers");
+      else {
+        $.each(tracts, function(index, value) {
+          $.each(value, function(k, v) {
+            //console.log(k);
+            if (LeafletLib.leaflet_tracts[k] != undefined) {
 
-            var layer = LeafletLib.map._layers[LeafletLib.leaflet_tracts[k]];
-            if (type == 'traveling-to') {
-              layer.setStyle({fillColor: LeafletLib.getColorTravelingTo(v, tract_jenks_cutoffs)});
-              LeafletLib.updateLegend(tract_jenks_cutoffs, LeafletLib.getColorTravelingTo, "Inbound workers");
-              layer.bindLabel('Tract: ' + layer.feature.properties.tract_fips + "<br />Inbound workers: " + v);
-            } 
-            else {
-              LeafletLib.map._layers[LeafletLib.leaflet_tracts[k]].setStyle({fillColor: LeafletLib.getColorTravelingFrom(v, tract_jenks_cutoffs)});
-              LeafletLib.updateLegend(tract_jenks_cutoffs, LeafletLib.getColorTravelingFrom, "Outbound workers");
-              layer.bindLabel('Tract: ' + layer.feature.properties.tract_fips + "<br />Outbound workers: " + v);
+              var layer = LeafletLib.map._layers[LeafletLib.leaflet_tracts[k]];
+              if (type == 'traveling-to') {
+                layer.setStyle({fillColor: LeafletLib.getColorTravelingTo(v, tract_jenks_cutoffs)});
+                LeafletLib.updateLegend(tract_jenks_cutoffs, LeafletLib.getColorTravelingTo, "Inbound workers");
+                layer.bindLabel('Tract: ' + layer.feature.properties.tract_fips + "<br />Inbound workers: " + v);
+              } 
+              else {
+                LeafletLib.map._layers[LeafletLib.leaflet_tracts[k]].setStyle({fillColor: LeafletLib.getColorTravelingFrom(v, tract_jenks_cutoffs)});
+                LeafletLib.updateLegend(tract_jenks_cutoffs, LeafletLib.getColorTravelingFrom, "Outbound workers");
+                layer.bindLabel('Tract: ' + layer.feature.properties.tract_fips + "<br />Outbound workers: " + v);
+              }
             }
-          }
+          });
         });
-      });
+      }
 
     },
 
