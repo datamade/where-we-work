@@ -37,7 +37,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Where We Work</a>
+          <a class="navbar-brand" href="index.html">Where We Work</a>
         </div>
         <div class="collapse navbar-collapse pull-right">
           <ul class="nav navbar-nav">
@@ -52,11 +52,11 @@
 
       <div class="starter-template">
         <div class='row'>
-          <div class='col-md-4'>
+          <div class='col-md-3'>
             <div class='well'>
               <h3>About</h3>
               
-              <ul>
+              <ul class='list-unstyled'>
                 <li><a href='#what-is-this'>What is this?</a></li>
                 <li><a href='#whats-a-census-tract'>What's a census tract?</a></li>
                 <li><a href='#where-did-you-get-the-data'>Where did you get the data?</a></li>
@@ -66,42 +66,74 @@
               </ul>
             </div>
           </div>
-          <div class='col-md-8'>
+          <div class='col-md-9'>
             <!-- content -->
 
             <h3 id='what-is-this'>What is this?</h3>
 
+            <p>Where we work is a map that shows where Chicagoans live and work.</p>
+
+            <p>
+              <a href='index.html#/?tract_fips=17031980000'>
+                <img class='img-thumbnail' src='images/where-we-work-screenshot.jpg' alt='Where We Work screenshot' />
+              </a>
+              <br />
+              <span class='text-muted'>Where people who work at the O'Hare airport live.</span>
+            </p>
+
+            <p>Click on any area of the map (each is a <a href='#whats-a-census-tract'>Census tract</a>) and it will show you all the people who work there and where they live in <strong style="color:#3182BD">blue</strong>. To see where all the people who live in that same tract and travel to other parts of the city for work, click the 'outbound workers' button on the left and it will show you those numbers in <strong style="color:#DE2D26">red</strong>.</p>
+
+            <p><img class='img-thumbnail' src='images/inbound-outbound-selector.png' alt='The inbound/outbound selector' /></p>
+
+            <p>The goal of this site is to help Chicagoans and city planners to indentify commute patterns to help inform their decisions. If you have a feature suggestion, <a href='#contact-us'>let us know!</a></p>
+
+            <hr />
             <h3 id='whats-a-census-tract'>What's a census tract?</h3>
+
+            <p>Census tracts are subdivisions of the United States determined by the <a href='http://www.census.gov/'>U.S. Census Bureau</a> that consist of 1,200 and 8,000 people. It is a unit of measure that typically follows contiguous area and stays consistent over time for the purposes of statistical population analysis. <a href='http://www.census.gov/geo/reference/gtc/gtc_ct.html'>Read more on the Census website</a>.</p>
+
+            <p>Each tract is identified with a uniquie FIPS code that also represents the state and county it belongs to.</p>
+
+            <img class='img-thumbnail' src='images/fips-code-explained.png' alt='FIPS Codes explained' />
             
+            <hr />
             <h3 id='where-did-you-get-the-data'>Where did you get the data?</h3>
 
+            <p>The data we use for this project comes from the US Census' <a href='http://lehd.ces.census.gov/'>Longitudinal Employer-Household Dynamics</a>. You can <a href='http://lehd.ces.census.gov/data/#lodes'>download it yourself here</a>.</p>
+
+            <p>Take a look at <a href='http://onthemap.ces.census.gov/'>OnTheMap</a>, a US Census project that also visualizes this data.</p>
+
+            <hr />
             <h3 id='code'>Code</h3>
 
             <p>This project is based on two components: an API to fetch the data, and this website to allow people to browse it.</p>
             
-            <p><strong>API:</strong> A simple python Flask app that serves up JSON data. Built by Eric.</p>
+            <h4>LODES API</h4>
+            <p>A simple python Flask app that serves up JSON data. Built by Eric.</p>
 
             <ul>
-              <li>Flask - web framework</li>
-              <li>Postgres - database</li>
-              <li>Varnish - caching service</li>
+              <li><a href='http://flask.pocoo.org/'>Flask</a> - web framework</li>
+              <li><a href='http://www.postgresql.org/'>Postgres</a> - database</li>
+              <li><a href='https://www.varnish-cache.org/'>Varnish</a> - caching service</li>
             </ul>
 
-            <p><a href='https://github.com/dssg/census-communities-usa'>Source on Github</a></p>
+            <p><a class='btn btn-primary' href='https://github.com/dssg/census-communities-usa'>Source on Github <i class='glyphicon glyphicon-cloud-download'></i></a></p>
 
-            <p><strong>Website:</strong> Built in pure HTML and Javascript for scalability. Built by Derek.</p>
+            <h4>Map</h4>
+            <p>Built in pure HTML and Javascript for scalability. Built by Derek.</p>
 
             <ul>
-              <li>Bootstrap 3 - HTML and CSS layouts</li>
-              <li>Leaflet - for the interactive map</li>
-              <li>Jenks natural breaks - for calculating the choropleth cutoffs</li>
-              <li>jQuery address - for stateful URLs</li>
+              <li><a href='http://getbootstrap.com/'>Bootstrap 3</a> - HTML and CSS layouts</li>
+              <li><a href='http://leafletjs.com/'>Leaflet</a> - for the interactive map</li>
+              <li><a href='https://gist.github.com/tmcw/4977508'>Jenks natural breaks</a> - for calculating the choropleth cutoffs</li>
+              <li><a href='http://www.asual.com/jquery/address/'>jQuery address</a> - for stateful URLs</li>
             </ul>
 
-            <p><a href='https://github.com/datamade/where-we-work'>Source on Github</a></p>
+            <p><a class='btn btn-primary' href='https://github.com/datamade/where-we-work'>Source on Github <i class='glyphicon glyphicon-cloud-download'></i></a></p>
 
+            <hr />
             <h3 id='team'>Team and credits</h3>
-            <p>This is a project by DataMade and Data Science for Social Good. We built this site for fun and education (ours and yours).</p>
+            <p>This is a project by <a href='http://datamade.us'>DataMade</a> and <a href='http://dssg.io'>Data Science for Social Good</a>. We built this site for fun and education (ours and yours).</p>
 
             <p>The team is:</p>
 
@@ -110,6 +142,7 @@
               <li>Derek Eder - front end developer and designer</li>
             </ul>
 
+            <hr />
             <h3 id='contact-us'>Contact us</h3>
             <p>Found a bug? Report it on our <a href='https://github.com/datamade/where-we-work/issues?state=open'>issue tracker</a>.</p>
 
