@@ -42,7 +42,7 @@
         </div>
         <div class="collapse navbar-collapse pull-right">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="index.html">Home</a></li>
+            <li class="active"><a href="index.html">Map</a></li>
             <li><a href="about.html">About</a></li>
           </ul>
         </div><!--/.nav-collapse -->
@@ -74,7 +74,7 @@
             <div class='well' id="selected-tract" style='display: none;'>
               <p class='lead'>
                 <strong>Tract</strong>
-                <span id="selected-tract-id"></span>
+                <span id="selected-tract-id" style='color: #756BB1;'></span>
               </p>
               <h4><span id='connect-tracts'></span> connected tracts</h4>
               <table class='table table-bordered' id='top-tracts'>
@@ -121,7 +121,7 @@
         $('#map').css('height', (h - offsetTop));
       }).resize();
 
-      LeafletLib.initialize($("#map")[0], chicago_CBSA_tracts, [41.882726, -87.93045], 9);
+      LeafletLib.initialize($("#map")[0], chicago_CBSA_tracts, [41.882726, -87.93045], 10);
 
       $('#rbTravelingTo').click(function(){
         LeafletLib.viewMode = 'traveling-to';

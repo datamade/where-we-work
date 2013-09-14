@@ -10,7 +10,7 @@ var LeafletLib = {
     markers: [ ],
     geojson: [ ],
     leaflet_tracts: {},
-    selectedTract: "",
+    selectedTract: "17031839100",
     viewMode: 'traveling-to',
     legend: L.control({position: 'bottomright'}),
 
@@ -35,6 +35,7 @@ var LeafletLib = {
         layer.bindLabel('Tract: ' + layer.feature.properties.tract_fips);
       });
 
+      if ($.address.parameter('tract_fips') != undefined)
       LeafletLib.selectedTract = $.address.parameter('tract_fips');
 
       if ($.address.parameter('view_mode') == 'traveling-from') {
@@ -42,8 +43,7 @@ var LeafletLib = {
         $('#rbTravelingFrom').attr('checked', 'checked');
       }
         
-      if (LeafletLib.selectedTract != undefined) 
-        LeafletLib.getConnectedTracts(LeafletLib.selectedTract);
+      LeafletLib.getConnectedTracts(LeafletLib.selectedTract);
     },
 
     // get color depending on population density value
@@ -98,13 +98,13 @@ var LeafletLib = {
 
     resetHighlight: function (e) {
 
-      if (e.target.feature.properties.tract_fips != LeafletLib.selectedTract) {
+      //if (e.target.feature.properties.tract_fips != LeafletLib.selectedTract) {
          e.target.setStyle({
           weight: 0.5,
           opacity: 1,
           color: 'white',
         });
-      }
+      //}
     },
 
     tractSelected: function (e) {
@@ -137,7 +137,7 @@ var LeafletLib = {
           });
 
           LeafletLib.displayOriginDestination(resp[LeafletLib.viewMode], LeafletLib.viewMode);
-          LeafletLib.map._layers[LeafletLib.leaflet_tracts[tract_fips]].setStyle({weight: 2, color: '#333'});
+          LeafletLib.map._layers[LeafletLib.leaflet_tracts[tract_fips]].setStyle({fillColor: '#756BB1'});
         },
         error: function(error) {
           console.log(error);
@@ -165,6 +165,11 @@ var LeafletLib = {
       if (tract_jenks_cutoffs == null)
         LeafletLib.updateLegend([], null, "No workers");
       else {
+        if (type == 'traveling-to')
+          LeafletLib.updateLegend(tract_jenks_cutoffs, LeafletLib.getColorTravelingTo, "Inbound workers");
+        else
+          LeafletLib.updateLegend(tract_jenks_cutoffs, LeafletLib.getColorTravelingFrom, "Outbound workers");
+
         $.each(tracts, function(index, value) {
           $.each(value, function(k, v) {
             //console.log(k);
@@ -173,12 +178,10 @@ var LeafletLib = {
               var layer = LeafletLib.map._layers[LeafletLib.leaflet_tracts[k]];
               if (type == 'traveling-to') {
                 layer.setStyle({fillColor: LeafletLib.getColorTravelingTo(v, tract_jenks_cutoffs)});
-                LeafletLib.updateLegend(tract_jenks_cutoffs, LeafletLib.getColorTravelingTo, "Inbound workers");
                 layer.bindLabel('Tract: ' + layer.feature.properties.tract_fips + "<br />Inbound workers: " + v);
               } 
               else {
                 LeafletLib.map._layers[LeafletLib.leaflet_tracts[k]].setStyle({fillColor: LeafletLib.getColorTravelingFrom(v, tract_jenks_cutoffs)});
-                LeafletLib.updateLegend(tract_jenks_cutoffs, LeafletLib.getColorTravelingFrom, "Outbound workers");
                 layer.bindLabel('Tract: ' + layer.feature.properties.tract_fips + "<br />Outbound workers: " + v);
               }
             }
