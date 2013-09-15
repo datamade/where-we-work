@@ -148,15 +148,18 @@ var LeafletLib = {
     displayOriginDestination: function (tracts, type) {
       var jenks_numbers = [];
       var top_tracts = "";
+      var total_workers = 0;
       $.each(tracts, function(index, value) {
         $.each(value, function(k, v) {
           jenks_numbers.push(v);
+          total_workers += v;
 
-          if (index < 5) top_tracts += "<tr><td><a onclick='LeafletLib.getConnectedTracts(" + k + "); return false;' href='#'>" + k + "</a></td><td>" + v + "</td></tr>";
+          if (index < 5) top_tracts += "<tr><td><a onclick='LeafletLib.getConnectedTracts(" + k + "); return false;' href='#'>" + k + "</a></td><td>" + LeafletLib.addCommas(v) + "</td></tr>";
         });
       });
 
-      $('#connect-tracts').html(tracts.length);
+      $('#connect-tracts').html(LeafletLib.addCommas(tracts.length));
+      $('#total-workers').html(LeafletLib.addCommas(total_workers));
       $('#top-tracts tbody').html(top_tracts);
 
       var tract_jenks_cutoffs = jenks(jenks_numbers, 4);
@@ -165,10 +168,14 @@ var LeafletLib = {
       if (tract_jenks_cutoffs == null)
         LeafletLib.updateLegend([], null, "No workers");
       else {
-        if (type == 'traveling-to')
+        if (type == 'traveling-to') {
+          $('#inbound-outbound').html("inbound");
           LeafletLib.updateLegend(tract_jenks_cutoffs, LeafletLib.getColorTravelingTo, "Inbound workers");
-        else
+        }
+        else {
+          $('#inbound-outbound').html("outbound");
           LeafletLib.updateLegend(tract_jenks_cutoffs, LeafletLib.getColorTravelingFrom, "Outbound workers");
+        }
 
         $.each(tracts, function(index, value) {
           $.each(value, function(k, v) {
@@ -387,5 +394,17 @@ var LeafletLib = {
         else {
           alert("Sorry, we could not find your location.");
         }
+    },
+
+    addCommas: function(nStr) {
+      nStr += '';
+      x = nStr.split('.');
+      x1 = x[0];
+      x2 = x.length > 1 ? '.' + x[1] : '';
+      var rgx = /(\d+)(\d{3})/;
+      while (rgx.test(x1)) {
+        x1 = x1.replace(rgx, '$1' + ',' + '$2');
+      }
+      return x1 + x2;
     }
 }
