@@ -137,7 +137,7 @@ var LeafletLib = {
           });
 
           LeafletLib.displayOriginDestination(resp[LeafletLib.viewMode], LeafletLib.viewMode);
-          LeafletLib.map._layers[LeafletLib.leaflet_tracts[tract_fips]].setStyle({fillColor: '#756BB1'});
+          LeafletLib.map._layers[LeafletLib.leaflet_tracts[tract_fips]].setStyle({fillColor: '#4A1486'});
         },
         error: function(error) {
           console.log(error);

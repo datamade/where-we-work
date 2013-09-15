@@ -1,9 +1,8 @@
 body {
-  padding-top: 50px;
   font-size: 15px;
 }
-.starter-template {
-  padding-top: 10px;
+.navbar {
+  margin-bottom: 10px;
 }
 
 .info {
