@@ -18,11 +18,10 @@ var LeafletLib = {
 
       LeafletLib.map = L.map(element).setView(new L.LatLng( centroid[0], centroid[1] ), zoom);
 
-      LeafletLib.tiles =  L.tileLayer('http://{s}.tile.cloudmade.com/{key}/{styleId}/256/{z}/{x}/{y}.png', {
-        attribution: 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
-        key: 'BC9A493B41014CAABB98F0471D759707',
-        styleId: 22677
+      LeafletLib.tiles =  L.tileLayer('https://{s}.tiles.mapbox.com/v3/datamade.hn83a654/{z}/{x}/{y}.png', {
+          attribution: '<a href="http://www.mapbox.com/about/maps/" target="_blank">Terms &amp; Feedback</a>'
       }).addTo(LeafletLib.map);
+      
       LeafletLib.map.attributionControl.addAttribution('LODES data &copy; <a href="http://census.gov/">US Census Bureau</a>');
 
       LeafletLib.geojson = L.geoJson(features, {

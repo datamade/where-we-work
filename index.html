@@ -38,7 +38,7 @@
             <span class="icon-bar"></span>
           </button>
           <a class="navbar-brand" href="index.html">Where We Work</a>
-          <p class='navbar-text'>A project by <a href='http://datamade.us'>DataMade</a> and <a href='http://dssg.io'>Data Science for Social Good</a></p>
+          <span class='navbar-text'>A project by <a href='http://datamade.us'>DataMade</a> and <a href='http://dssg.io'>Data Science for Social Good</a></span>
         </div>
         <div class="collapse navbar-collapse pull-right">
           <ul class="nav navbar-nav">
@@ -72,10 +72,11 @@
 
             </div>
             <div class='well' id="selected-tract" style='display: none;'>
-              <p class='lead'>
-                <strong>Tract</strong>
+              <h4>
+                Tract
                 <span id="selected-tract-id" style='color: #4A1486;'></span>
-              </p>
+                <small>(<a href='about.html#whats-a-census-tract'>what's a tract?</a>)</small>
+              </h4>
               <p><strong id='total-workers'></strong> <span id='inbound-outbound'></span> workers</p>
               <p><strong id='connect-tracts'></strong> connected tracts</p>
               <table class='table table-bordered' id='top-tracts'>
@@ -88,8 +89,6 @@
                 <tbody>
                 </tbody>
               </table>
-
-              <p><a href='about.html#whats-a-census-tract'>What's a census tract?</a></p>
             </div>
           </div>
           <div class='col-md-8'>
