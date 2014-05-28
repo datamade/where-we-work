@@ -123,8 +123,6 @@
     <script src="js/jquery.address.js"></script>
     <script src="js/leaflet_lib.js"></script>
 
-    <script src="data/chicago_CBSA_tracts.js"></script>
-
     <script>
       $(window).resize(function () {
         var h = $(window).height(),
@@ -133,8 +131,20 @@
         $('#map').css('height', (h - offsetTop));
       }).resize();
 
-      LeafletLib.initialize($("#map")[0], chicago_CBSA_tracts, [41.882726, -87.93045], 10);
-
+      $.when($.getJSON('data/2011.geojson')).then(
+      function(tracts){
+              var counts = {}
+              var traveling_to = []
+              var traveling_from = []
+              $.each(tracts.features, function(i, feat){
+                  traveling_to.push(feat['properties']['traveling-to']);
+                  traveling_from.push(feat['properties']['traveling-to']);
+              });
+              counts['traveling_to'] = jenks(traveling_to, 5);
+              counts['traveling_from'] = jenks(traveling_from, 5);
+              LeafletLib.initialize($("#map")[0], tracts, [41.882726, -87.93045], 10, counts);
+          }
+      )
       $('#rbTravelingTo').click(function(){
         LeafletLib.viewMode = 'traveling-to';
         $.address.parameter('view_mode', LeafletLib.viewMode);
@@ -150,6 +160,8 @@
         if (LeafletLib.selectedTract != '')
           LeafletLib.getConnectedTracts(LeafletLib.selectedTract);
       });
+      $('#address-search').on('click', LeafletLib.searchAddress);
+      $('#find-me').on('click', LeafletLib.geolocate);
 
     </script>
 

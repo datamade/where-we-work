@@ -10,11 +10,13 @@ var LeafletLib = {
     markers: [ ],
     geojson: [ ],
     leaflet_tracts: {},
+    jenks_counts: {},
     selectedTract: "17031839100",
     viewMode: 'traveling-to',
     legend: L.control({position: 'bottomright'}),
 
-    initialize: function(element, features, centroid, zoom) {
+    initialize: function(element, features, centroid, zoom, counts) {
+      LeafletLib.jenks_counts = counts;
 
       LeafletLib.map = L.map(element).setView(new L.LatLng( centroid[0], centroid[1] ), zoom);
 
@@ -37,14 +39,12 @@ var LeafletLib = {
       if ($.address.parameter('tract_fips') != undefined)
       LeafletLib.selectedTract = $.address.parameter('tract_fips');
 
-      if ($.address.parameter('view_mode') == 'traveling-from') {
-        LeafletLib.viewMode = 'traveling-from';
-        $('#rbTravelingFrom').attr('checked', 'checked');
-      }
+    //if ($.address.parameter('view_mode') == 'traveling-from') {
+    //  LeafletLib.viewMode = 'traveling-from';
+    //  $('#rbTravelingFrom').attr('checked', 'checked');
+    //}
 
-      LeafletLib.getConnectedTracts(LeafletLib.selectedTract);
-      $('#address-search').on('click', LeafletLib.searchAddress);
-      $('#find-me').on('click', LeafletLib.geolocate);
+    //LeafletLib.getConnectedTracts(LeafletLib.selectedTract);
     },
 
     // get color depending on population density value
@@ -78,7 +78,7 @@ var LeafletLib = {
         opacity: 1,
         color: 'white',
         fillOpacity: 0.7,
-        fillColor: '#aaa' //getColor(feature.properties['2011']['total_jobs'], jenks_cutoffs)
+        fillColor: LeafletLib.getColorTravelingTo(feature.properties['traveling-to'], LeafletLib.jenks_counts['traveling_to'])
       };
     },
 
@@ -237,40 +237,6 @@ var LeafletLib = {
       });
     },
 
-    addBoundedPoint: function( latlng ){
-        LeafletLib.latmin = Math.min( LeafletLib.latmin, latlng.lat );
-        LeafletLib.latmax = Math.max( LeafletLib.latmax, latlng.lat );
-        LeafletLib.lngmin = Math.min( LeafletLib.lngmin, latlng.lng );
-        LeafletLib.lngmax = Math.max( LeafletLib.lngmax, latlng.lng );
-    },
-
-    addBoundedBox: function( bounds ){
-        LeafletLib.latmin = Math.min( LeafletLib.latmin, bounds.getSouthWest().lat );
-        LeafletLib.latmax = Math.max( LeafletLib.latmax, bounds.getNorthEast().lat );
-        LeafletLib.lngmin = Math.min( LeafletLib.lngmin, bounds.getSouthWest().lng );
-        LeafletLib.lngmax = Math.max( LeafletLib.lngmax, bounds.getNorthEast().lng );
-    },
-
-    fitFeatures: function(){
-        if(LeafletLib.latmax > LeafletLib.latmin){
-          var bounds = new L.LatLngBounds(
-                      new L.LatLng( LeafletLib.latmin, LeafletLib.lngmin ),
-                      new L.LatLng( LeafletLib.latmax, LeafletLib.lngmax ));
-
-          LeafletLib.map.fitBounds( bounds.pad(.2) );
-        }
-    },
-
-    squareAround: function(latlng, distance){
-        var north = latlng.lat + distance * 0.000008;
-        var south = latlng.lat - distance * 0.000008;
-        var east = latlng.lng + distance * 0.000009;
-        var west = latlng.lng - distance * 0.000009;
-        var bounds = [[south, west], [north, east]];
-        var sq = new L.rectangle(bounds);
-        return sq;
-    },
-
     searchAddress: function(e){
         e.preventDefault();
         var address = $('#address').val();
@@ -287,24 +253,6 @@ var LeafletLib = {
         document.body.appendChild(s);
     },
 
-    drawSquare: function(foundLocation, searchRadius){
-        LeafletLib.sq = LeafletLib.squareAround(foundLocation, searchRadius);
-        LeafletLib.sq.setStyle({
-          strokeColor: "#4b58a6",
-          strokeOpacity: 0.3,
-          strokeWeight: 1,
-          fillColor: "#4b58a6",
-          fillOpacity: 0.1
-        });
-        LeafletLib.map.addLayer(LeafletLib.sq);
-
-        LeafletLib.centerMark = new L.Marker(foundLocation, { icon: (new L.Icon({
-          iconUrl: '/images/blue-pushpin.png',
-          iconSize: [32, 32],
-          iconAnchor: [10, 32]
-        }))}).addTo(LeafletLib.map);
-    },
-
     returnAddress: function(response){
         if(!response.length){
           alert("Sorry, no results found for that location.");
@@ -316,48 +264,6 @@ var LeafletLib = {
         var icon = L.icon({iconUrl: '/images/blue-pushpin.png'})
         L.marker(foundLocation, {icon: icon}).addTo(LeafletLib.map)
         LeafletLib.map.setView( foundLocation, 15 );
-    },
-
-    addMarker: function( marker ){
-        LeafletLib.map.addLayer(marker);
-        LeafletLib.addBoundedPoint( marker.getLatLng() );
-        LeafletLib.markers.push( marker );
-    },
-
-    ptInShape: function( pt, shape ){
-        if( typeof shape.rectangle != "undefined" ){
-          var bounds = shape.rectangle.getBounds();
-          if(pt.lat < bounds.getNorthEast().lat && pt.lat > bounds.getSouthWest().lat && pt.lng < bounds.getNorthEast().lng && pt.lng > bounds.getSouthWest().lng){
-            return true;
-          }
-          return false;
-        }
-        else if( typeof shape.circle != "undefined" ){
-          // getRadius is in meters, makes this more complex
-        }
-        else if( typeof shape.polygon != "undefined" ){
-          var poly = shape.polygon.getLatLngs();
-          for(var c = false, i = -1, l = poly.length, j = l - 1; ++i < l; j = i){
-            ((poly[i].lat <= pt.lat && pt.lat < poly[j].lat) || (poly[j].lat <= pt.lat && pt.lat < poly[i].lat))
-            && (pt.lng < (poly[j].lng - poly[i].lng) * (pt.lat - poly[i].lat) / (poly[j].lat - poly[i].lat) + poly[i].lng)
-            && (c = !c);
-          }
-          return c;
-       }
-    },
-
-    filterMarkers: function( boundary ){
-        for(var m=0;m<LeafletLib.markers.length;m++){
-          var ll = LeafletLib.markers[m].getLatLng();
-          if(LeafletLib.ptInShape(ll, boundary)){
-            if( !LeafletLib.map.hasLayer( LeafletLib.markers[m] ) ){
-              LeafletLib.map.addLayer( LeafletLib.markers[m] );
-            }
-          }
-          else{
-            LeafletLib.map.removeLayer( LeafletLib.markers[m] );
-          }
-        }
     },
 
     geolocate: function(alt_callback){
