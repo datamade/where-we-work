@@ -1,10 +1,10 @@
 var LeafletLib = LeafletLib || {};
 var LeafletLib = {
 
-    latmin: 90,
-    latmax: -90,
-    lngmin: 180,
-    lngmax: -180,
+    latmin: 40.7365,
+    latmax: 42.6699,
+    lngmin: -88.9423,
+    lngmax: -86.9294,
     searchRadius: 805,
     defaultCity: "",
     markers: [ ],
@@ -21,7 +21,7 @@ var LeafletLib = {
       LeafletLib.tiles =  L.tileLayer('https://{s}.tiles.mapbox.com/v3/datamade.hn83a654/{z}/{x}/{y}.png', {
           attribution: '<a href="http://www.mapbox.com/about/maps/" target="_blank">Terms &amp; Feedback</a>'
       }).addTo(LeafletLib.map);
-      
+
       LeafletLib.map.attributionControl.addAttribution('LODES data &copy; <a href="http://census.gov/">US Census Bureau</a>');
 
       LeafletLib.geojson = L.geoJson(features, {
@@ -41,8 +41,10 @@ var LeafletLib = {
         LeafletLib.viewMode = 'traveling-from';
         $('#rbTravelingFrom').attr('checked', 'checked');
       }
-        
+
       LeafletLib.getConnectedTracts(LeafletLib.selectedTract);
+      $('#address-search').on('click', LeafletLib.searchAddress);
+      $('#find-me').on('click', LeafletLib.geolocate);
     },
 
     // get color depending on population density value
@@ -140,7 +142,7 @@ var LeafletLib = {
         },
         error: function(error) {
           console.log(error);
-        }  
+        }
       });
     },
 
@@ -185,7 +187,7 @@ var LeafletLib = {
               if (type == 'traveling-to') {
                 layer.setStyle({fillColor: LeafletLib.getColorTravelingTo(v, tract_jenks_cutoffs)});
                 layer.bindLabel('Tract: ' + layer.feature.properties.tract_fips + "<br />Inbound workers: " + v);
-              } 
+              }
               else {
                 LeafletLib.map._layers[LeafletLib.leaflet_tracts[k]].setStyle({fillColor: LeafletLib.getColorTravelingFrom(v, tract_jenks_cutoffs)});
                 layer.bindLabel('Tract: ' + layer.feature.properties.tract_fips + "<br />Outbound workers: " + v);
@@ -269,7 +271,9 @@ var LeafletLib = {
         return sq;
     },
 
-    searchAddress: function(address){
+    searchAddress: function(e){
+        e.preventDefault();
+        var address = $('#address').val();
         if(LeafletLib.defaultCity && LeafletLib.defaultCity.length){
           var checkaddress = address.toLowerCase();
           var checkcity = LeafletLib.defaultCity.split(",")[0].toLowerCase();
@@ -279,7 +283,7 @@ var LeafletLib = {
         }
         var s = document.createElement("script");
         s.type = "text/javascript";
-        s.src = "http://nominatim.openstreetmap.org/search/" + encodeURIComponent(address) + "?format=json&json_callback=LeafletLib.returnAddress";
+        s.src = "http://nominatim.openstreetmap.org/search/" + encodeURIComponent(address) + "?format=json&bounded=1&viewbox=" + LeafletLib.lngmin + "," + LeafletLib.latmax + "," + LeafletLib.lngmax + "," + LeafletLib.latmin +"&json_callback=LeafletLib.returnAddress";
         document.body.appendChild(s);
     },
 
@@ -295,14 +299,13 @@ var LeafletLib = {
         LeafletLib.map.addLayer(LeafletLib.sq);
 
         LeafletLib.centerMark = new L.Marker(foundLocation, { icon: (new L.Icon({
-          iconUrl: '/assets/blue-pushpin.png',
+          iconUrl: '/images/blue-pushpin.png',
           iconSize: [32, 32],
           iconAnchor: [10, 32]
         }))}).addTo(LeafletLib.map);
     },
 
     returnAddress: function(response){
-        //console.log(response);
         if(!response.length){
           alert("Sorry, no results found for that location.");
           return;
@@ -310,16 +313,9 @@ var LeafletLib = {
 
         var first = response[0];
         var foundLocation = new L.LatLng(first.lat, first.lon);
-        if(typeof LeafletLib.sq != "undefined" && LeafletLib.sq){
-          LeafletLib.map.removeLayer(LeafletLib.sq);
-          LeafletLib.map.removeLayer(LeafletLib.centerMark);
-        }
-
-        LeafletLib.drawSquare(foundLocation, LeafletLib.searchRadius);
-
-        LeafletLib.filterMarkers( { rectangle: LeafletLib.sq } );
-
-        LeafletLib.map.fitBounds( LeafletLib.sq.getBounds().pad(0.2) );
+        var icon = L.icon({iconUrl: '/images/blue-pushpin.png'})
+        L.marker(foundLocation, {icon: icon}).addTo(LeafletLib.map)
+        LeafletLib.map.setView( foundLocation, 15 );
     },
 
     addMarker: function( marker ){
@@ -370,24 +366,11 @@ var LeafletLib = {
         if(navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(function(position) {
 
-            if(typeof alt_callback != "undefined"){
-              alt_callback( position );
-            }
-            else{
-
               foundLocation = new L.LatLng(position.coords.latitude * 1.0, position.coords.longitude * 1.0);
 
-              if(typeof LeafletLib.sq != "undefined" && LeafletLib.sq){
-                LeafletLib.map.removeLayer(LeafletLib.sq);
-                LeafletLib.map.removeLayer(LeafletLib.centerMark);
-              }
-
-              LeafletLib.drawSquare(foundLocation, LeafletLib.searchRadius);
-
-              LeafletLib.filterMarkers( { rectangle: LeafletLib.sq } );
-
-              LeafletLib.map.fitBounds( LeafletLib.sq.getBounds().pad(0.2) );
-            }
+              var icon = L.icon({iconUrl: '/images/blue-pushpin.png'})
+              L.marker(foundLocation, {icon: icon}).addTo(LeafletLib.map)
+              LeafletLib.map.setView( foundLocation, 15 );
           }, null);
         }
         else {
