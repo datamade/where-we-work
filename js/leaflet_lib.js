@@ -21,7 +21,7 @@ var LeafletLib = {
       LeafletLib.tiles =  L.tileLayer('https://{s}.tiles.mapbox.com/v3/datamade.hn83a654/{z}/{x}/{y}.png', {
           attribution: '<a href="http://www.mapbox.com/about/maps/" target="_blank">Terms &amp; Feedback</a>'
       }).addTo(LeafletLib.map);
-      
+
       LeafletLib.map.attributionControl.addAttribution('LODES data &copy; <a href="http://census.gov/">US Census Bureau</a>');
 
       LeafletLib.geojson = L.geoJson(features, {
@@ -41,7 +41,7 @@ var LeafletLib = {
         LeafletLib.viewMode = 'traveling-from';
         $('#rbTravelingFrom').attr('checked', 'checked');
       }
-        
+
       LeafletLib.getConnectedTracts(LeafletLib.selectedTract);
     },
 
@@ -140,7 +140,7 @@ var LeafletLib = {
         },
         error: function(error) {
           console.log(error);
-        }  
+        }
       });
     },
 
@@ -148,16 +148,16 @@ var LeafletLib = {
       var jenks_numbers = [];
       var top_tracts = "";
       var total_workers = 0;
-      $.each(tracts, function(index, value) {
-        $.each(value, function(k, v) {
-          jenks_numbers.push(v);
-          total_workers += v;
+      var index = 0
+      $.each(tracts, function(tract, value) {
+        index += 1
+        jenks_numbers.push(value);
+        total_workers += value;
 
-          if (index < 5) top_tracts += "<tr><td><a onclick='LeafletLib.getConnectedTracts(" + k + "); return false;' href='#'>" + k + "</a></td><td>" + LeafletLib.addCommas(v) + "</td></tr>";
-        });
+        if (index < 5) top_tracts += "<tr><td><a onclick='LeafletLib.getConnectedTracts(" + tract + "); return false;' href='#'>" + tract + "</a></td><td>" + LeafletLib.addCommas(value) + "</td></tr>";
       });
 
-      $('#connect-tracts').html(LeafletLib.addCommas(tracts.length));
+      $('#connect-tracts').html(LeafletLib.addCommas(index));
       $('#total-workers').html(LeafletLib.addCommas(total_workers));
       $('#top-tracts tbody').html(top_tracts);
 
@@ -176,22 +176,20 @@ var LeafletLib = {
           LeafletLib.updateLegend(tract_jenks_cutoffs, LeafletLib.getColorTravelingFrom, "Outbound workers");
         }
 
-        $.each(tracts, function(index, value) {
-          $.each(value, function(k, v) {
-            //console.log(k);
-            if (LeafletLib.leaflet_tracts[k] != undefined) {
+        $.each(tracts, function(tract, value) {
+          //console.log(k);
+          if (LeafletLib.leaflet_tracts[tract] != undefined) {
 
-              var layer = LeafletLib.map._layers[LeafletLib.leaflet_tracts[k]];
-              if (type == 'traveling-to') {
-                layer.setStyle({fillColor: LeafletLib.getColorTravelingTo(v, tract_jenks_cutoffs)});
-                layer.bindLabel('Tract: ' + layer.feature.properties.tract_fips + "<br />Inbound workers: " + v);
-              } 
-              else {
-                LeafletLib.map._layers[LeafletLib.leaflet_tracts[k]].setStyle({fillColor: LeafletLib.getColorTravelingFrom(v, tract_jenks_cutoffs)});
-                layer.bindLabel('Tract: ' + layer.feature.properties.tract_fips + "<br />Outbound workers: " + v);
-              }
+            var layer = LeafletLib.map._layers[LeafletLib.leaflet_tracts[tract]];
+            if (type == 'traveling-to') {
+              layer.setStyle({fillColor: LeafletLib.getColorTravelingTo(value, tract_jenks_cutoffs)});
+              layer.bindLabel('Tract: ' + layer.feature.properties.tract_fips + "<br />Inbound workers: " + value);
             }
-          });
+            else {
+              LeafletLib.map._layers[LeafletLib.leaflet_tracts[tract]].setStyle({fillColor: LeafletLib.getColorTravelingFrom(value, tract_jenks_cutoffs)});
+              layer.bindLabel('Tract: ' + layer.feature.properties.tract_fips + "<br />Outbound workers: " + value);
+            }
+          }
         });
       }
 
